@@ -1,3 +1,4 @@
+#!/bin/python
 """
 Author: Marek Sechra
 Last edit: 28.05.2025
