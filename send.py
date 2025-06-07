@@ -32,15 +32,17 @@ def send_email(to, cc, subject, html_content, attachment_paths):
 
     # SMTP server setup
     smtp_server = 'smtp.gmail.com'
-    smtp_port = 587 # port of SMTP
-    sender_email = 'name.surname@iaeste.cz'
-    password = 'generated password'
+    smtp_port = 587  # port of SMTP
+    sender_email = 'iaroslav.vasilevskii@iaeste.cz'
+    password = os.getenv("IA_PASSWORD", None)
+    if password is None:
+        raise Exception("IA_PASSWORD environment variable not set.")
 
     # Object of msg
     message = MIMEMultipart()
-    message['From'] = 'name.surname@iaeste.cz' # Name of sender email
+    message['From'] = sender_email  # Name of sender email
     message['To'] = to
-    message['Cc'] = "" # copy address
+    message['Cc'] = ""  # copy address
     message['Subject'] = "Nabídka diářů IAESTE - LC Brno 2025"
 
     # HTML append to msg
