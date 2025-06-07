@@ -7,16 +7,18 @@ Version: 0.02
 
 import smtplib
 import os
+import sys
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import csv
+
+from typing import Dict
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-
 
 def send_email(to, cc, subject, html_content, attachment_paths):
     """
@@ -87,33 +89,37 @@ def send_email(to, cc, subject, html_content, attachment_paths):
 
         server.sendmail(sender_email, recipients, message.as_string())
 
-contacts = [
-    "objednavky@foractiv.cz",
-    "velkoobchod@foractiv.cz",
-    "info@healthyco.cz",
-    "brustik@healthyco.cz",
-    "obchod@potraviny-ke-zdravi.cz",
-    "jorka.jorkova@gmail.com",
-    "info@freshprotein.cz",
-    "velkoobchod@protein.cz",
-    "hr@fit-pro.cz",
-    "l-stefankova@volny.cz",
-    "info@gymbeam.cz",
-    "pr@gymbeam.cz",
-    "obchod@czc.cz",
-    "obchod@alza.cz",
-    "info@gamefan.cz",
-    "partneri@rohlik.cz",
-    "marketing.czechia@wolt.com",
-    "cz-food@bolt.eu",
-    "partneri@damejidlo.cz",
-]
+def main(contacts_path: str, message_path: str, attachment_paths: list[str]):
+
+    with open(message_path) as f:
+        message = f.read()
+
+    with open(contacts_path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print(f"Firma: {row['firma']}")
+            print(f"Email: {row['email']}")
+
+            send_email(row['email'], "SENDER_EMAIL", 'SUBJECT_STRING', message,
+                       attachment_paths)
+            print(f"sent to: {row['email']}")
 
 if __name__ == "__main__":
-    with open("message.html") as f:
-        html_content = f.read()
-    for c in contacts:
-        attachment_paths = [r"Diar_Studenta_VUT_Nabidka.pdf", r"Diar_Studenta_MUNI_Nabidka.pdf"] #path in same directory for both i reccomend use raw string  in python...
-        # if u want u can append time.time.sleep(xy)
-        send_email(c,"SENDER_EMAIL" ,'SUBJECT_STRING', html_content,attachment_paths)
-        print(f"sent to: {c}")
+    if len(sys.argv) < 3:
+        print("Usage: send.py <message_file> <contacts_file> " +
+              "[attachment_1], ... [attachment_n]")
+        sys.exit(1)
+
+    message_path = sys.argv[1]
+    contacts_path = sys.argv[2]     # Kontakty ve tvaru
+                                    # firma,email
+                                    # firma1,firma1@email.com
+                                    # ...
+    attachment_paths = sys.argv[3:]
+
+    print("message:" + message_path)
+    print("contacts:" + contacts_path)
+    print("atts:")
+    print(attachment_paths)
+
+    main(contacts_path, message_path, attachment_paths)
